@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo MIDDLEWARE: UPDATER: starting update to version $1>> /var/log/middleware.log
+
+# First backup to the backups directory
+VER=`cat README | grep VER | cut -d : -f 2`
+FILENAME=BlueCat-Middleware-$VER.tar
+tar -cf $FILENAME --exclude='./node_modules' --exclude='*.json' .
+mv *.tar ../backup/
+echo MIDDLEWARE: BACKEDUP: Backedup version $VER >> /var/log/middleware.log
+
+# Next use the version from uploads to overwrite the current directory
+tar -xf ../uploads/BlueCat-Middleware-$1*.tar -C .
+echo MIDDLEWARE: UPDATER: Updated to version $1 >> /var/log/middleware.log
+
+# Restart middleware
+sudo service middleware restart

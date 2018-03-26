@@ -1,0 +1,28 @@
+{
+    "routes" : 
+    [
+	{
+		"route" : "/version",
+		"actor" : "exec",
+		"argument" : "cat README | grep VER | cut -d : -f 2"
+	},
+	{ 
+		"route" : "/showLogs",
+		"actor" : "exec",
+		"argument" : "tail -n 10 /var/log/middleware.log"
+	},
+	{
+		"route" : "/addVIP",
+		"actor" : "BAM",
+		"params" : [ "username", "start", "end" ],
+		"function" : "createVIPUser"
+	},
+	{
+		"route" : "/findUser",
+		"actor" : "AD",
+		"params" : [ "name" ],
+		"query" : "cn=",
+		"wildcard" : 1
+	}
+    ]
+}

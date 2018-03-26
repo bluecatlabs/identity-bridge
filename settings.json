@@ -1,0 +1,21 @@
+{
+"bam_ip": "2.2.2.2",
+"bam_user": "apiuser",
+"bam_pass" : "bluecat",
+"bam_config" : "BUMA",
+"mac_pool_name" : "allowedmacs",
+"vip_tag_group" : "vip",
+"vip_group_limit" : 5,
+"corp_tag_group" : "corp",
+"corp_group_limit" : 1,
+"debug" : 1,
+"trace" : 1,
+"syslog_port" : 514,
+"syslog_server_address" : "0.0.0.0",
+"webui_port" : 5000,
+"default_domain" : "test",
+"ldap_host" : "bumadcho07.bukitmakmur.corp",
+"ldap_basedn" : "dc=bukitmakmur,dc=corp",
+"ldap_user" : "itadmin@bukitmakmur.corp",
+"ldap_password" : "adminbumait"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "user-management-middleware",
+  "version": "1.0.1",
+  "description": "User management integratio with Cisco ISE",
+  "main": "webserver.js",
+  "dependencies": {
+    "activedirectory": "",
+    "array-unique": "",
+    "cors": "",
+    "express": "",
+    "forever": "",
+    "formidable": "",
+    "net-ping": "",
+    "q": "",
+    "request": "",
+    "service-systemd": "",
+    "shasum": ""
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "keywords": [],
+  "author": "Timothy Noel",
+  "license": "BlueCat Commercial"
+}

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+
+		<link rel="stylesheet" href="/css/style.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="/js/main.js"></script>
+		<!-- Begin Jekyll SEO tag v2.1.0 -->
+<title>API Docs - Aviator</title>
+<meta property="og:title" content="API Docs" />
+<meta name="description" content="Jekyll template for API documentation." />
+<meta property="og:description" content="Jekyll template for API documentation." />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="Aviator" />
+<script type="application/ld+json">
+{"@context": "http://schema.org",
+"@type": "WebSite",
+"name": "Aviator",
+"headline": "API Docs",
+"description": "Jekyll template for API documentation.",
+"url": "http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+		
+	</head>
+	<body>
+		<header>
+			<h1>
+				<a href="/"><img src="bluecat.jpg" height="40" alt="bluecat logo"></a>
+			</h1>
+
+			<div id="sidebar" class="sidebar">
+	
+	
+		
+	
+		
+			<section>
+				<h6>Workflows</h6>
+				<ul>
+					
+					
+						<li>
+							<a href="#apiadd-vip">
+								Add a VIP user
+								<span class="endpoint GET"></span>
+							</a>
+						</li>
+					
+				</ul>
+			</section>
+		
+	
+		
+			<section>
+				<h6>Documentation</h6>
+				<ul>
+					
+					
+						<li>
+							<a href="#documentationoverview">
+								Overview
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#documentationconfiguration-settings">
+								Configuration Settings
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#documentationrunning-middleware">
+								Running your middleware server
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#documentationtroubleshooting">
+								Troubleshooting
+								
+							</a>
+						</li>
+					
+				</ul>
+			</section>
+		
+	
+</div>
+
+
+		</header>
+		<div class="main">
+			
+
+	
+	
+
+	
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiadd-vip">
+						Add a VIP user
+						
+							<span class="endpoint GET"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Use this form to add a VIP user with a static IP address range</p>
+				
+
+				<h6>(Add VIP form)</h6><dl>
+  <dt>username</dt>
+  <dd><label> <input type="text" name="username" id="username" /> </label></dd>
+  <dt>ip-start</dt>
+  <dd><label> <input type="text" name="ipstart" id="ipstart" /> </label></dd>
+  <dt>ip-end</dt>
+  <dd><label> <input type="text" name="ipend" id="ipend" /> </label></dd>
+</dl>
+
+<div id="result"> Result: </div>
+<p><button onclick="addVIP()"> Add </button></p>
+
+			</section>
+		</section>
+	
+
+	
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationoverview">
+						Overview
+						
+					</a>
+				</h3>
+				
+
+				<p>User Management is a custom feature that integrates with Cisco ISE to hand out DHCP addresses to devices only after they have successfuly authenticated using 802.1x. This feature also provides the ability to limit the number of devices a particular user group can have.</p>
+
+<h3 id="how-this-works">How this works?</h3>
+<p>User Management uses MAC Pools on the BlueCat Address Manager. Using MAC Pools and instant deployment, a device is dynamically allowed to be assigned an IP address based on the limit of devices a particular user has.</p>
+
+<p>User Management for DHCP allows customers to manage IP Address allocations on a per user basis. There are two types of users defined:
+<a href="#vip"><code class="highlighter-rouge">vip</code></a> and <a href="#corporate"><code class="highlighter-rouge">corporate</code></a></p>
+
+<p><a name="vip"></a></p>
+<h3 id="vip-users">VIP users</h3>
+<p>VIP users can have a higher number of devices actively logged in at a given time. The IP limit for VIP devices can be set by your network administrator using the <a href="#vip-setting"><code class="highlighter-rouge">vip_group_limit</code></a> setting in the middleware <a href="#settings">configuration file</a>
+New VIP users can be added to BlueCat Address Manager using the <a href="#addvipform"><code class="highlighter-rouge">Add VIP user</code></a> form under forms</p>
+
+<p><a name="corporate"></a></p>
+<h3 id="corporate-users">Corporate users</h3>
+<p>Corporate users are limited to the number of devices they can login to at a given moment. The device limit for corporate devices can be set by your network administrator using the <a href="#corp-setting"><code class="highlighter-rouge">corp_group_limit</code></a> setting on the configuration file.</p>
+
+
+			</section>
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationconfiguration-settings">
+						Configuration Settings
+						
+					</a>
+				</h3>
+				
+
+				<p><a name="settings"></a></p>
+
+<p>All configuration settings are defined in the following file using the JSON format:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="s2">"/home/middleware/settings.json"</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>The following configuration settings should be set appropriately for the user management middleware to operate successfully.</p>
+
+<p>(<em>You will need to restart middleware in order to have any changes in these settings to take effect</em>)</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Configuration Setting</th>
+      <th>Value</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>bam_ip</td>
+      <td>192.168.1.100</td>
+      <td>Specify the address of your BlueCat Address Manager (BAM) here.</td>
+    </tr>
+    <tr>
+      <td>bam_user</td>
+      <td>abcd</td>
+      <td>Specify the username of the API user that has access to BAM here.</td>
+    </tr>
+    <tr>
+      <td>bam_config</td>
+      <td>“BUMA”</td>
+      <td>Specify the name of the configuration in BAM.</td>
+    </tr>
+    <tr>
+      <td><a name="vip-setting"></a> vip_group_limit</td>
+      <td>5</td>
+      <td>Set this to the number of devices allowed for a VIP user.</td>
+    </tr>
+    <tr>
+      <td><a name="corp-setting"></a> corp_group_limit</td>
+      <td>1</td>
+      <td>Set this to the number of devices allowed for a Corporate user.</td>
+    </tr>
+    <tr>
+      <td>syslog_port</td>
+      <td>514</td>
+      <td>The user management server listens on this port for incoming syslog messages from Cisco ISE.</td>
+    </tr>
+    <tr>
+      <td>webui_port</td>
+      <td>80</td>
+      <td>This web server listens on this port.</td>
+    </tr>
+    <tr>
+      <td><a name="debug"></a> debug</td>
+      <td>1</td>
+      <td>Turning on debug writes all “DEBUG” messages to <code class="highlighter-rouge">/var/log/middleware.log</code>. See <a href="#troubleshooting">troubleshooting</a> for more details.</td>
+    </tr>
+    <tr>
+      <td><a name="trace"></a> trace</td>
+      <td>0</td>
+      <td>Turning on trace writes all “TRACE” events to <code class="highlighter-rouge">/var/log/middleware.log</code>. See <a href="#troubleshooting">troubleshooting</a> for more details.</td>
+    </tr>
+  </tbody>
+</table>
+
+			</section>
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationrunning-middleware">
+						Running your middleware server
+						
+					</a>
+				</h3>
+				
+
+				<p>In order to install and start the middleware server on Ubuntu / Debian, we make use of the <a href="https://www.npmjs.com/package/forever-service">forever framework on nodejs</a>.</p>
+
+<p>To install the service, use this command</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="s2">"sudo forever-service install middleware --script webserver.js"</span><span class="w"> 
+</span></code></pre>
+</div>
+
+<p>To start the middleware service, run this command:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="s2">"sudo service middleware start"</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>To stop the middleware service, run this command:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="s2">"sudo service middleware stop"</span><span class="w">
+</span></code></pre>
+</div>
+
+			</section>
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationtroubleshooting">
+						Troubleshooting
+						
+					</a>
+				</h3>
+				
+
+				<p><a name="troubleshooting"></a>
+All debug messages from the middleware during it’s operation are logged to <code class="highlighter-rouge">/var/log/middleware.log</code>. You can enable the <a href="#debug">debug</a> option in the configuration settings.
+More advanced debugging is prossible by enabling the <a href="#trace">trace</a> option in the configuration settings.</p>
+
+<p>Errors are automatically logged to <code class="highlighter-rouge">/var/log/middleware.log</code></p>
+
+<p>The following is a sample log:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>TRACE: rest call output: getEntityByName?parentId<span class="o">=</span>239362&amp;type<span class="o">=</span>Tag&amp;name<span class="o">=</span>user1 : <span class="o">{</span><span class="s2">"id"</span>:0,<span class="s2">"name"</span>:null,<span class="s2">"type"</span>:null,<span class="s2">"properties"</span>:null<span class="o">}</span>
+TRACE: found a vipuser: 0
+TRACE: performing rest call: getEntityByName?parentId<span class="o">=</span>239363&amp;type<span class="o">=</span>Tag&amp;name<span class="o">=</span>user1
+TRACE: rest call output: getEntityByName?parentId<span class="o">=</span>239363&amp;type<span class="o">=</span>Tag&amp;name<span class="o">=</span>user1 : <span class="o">{</span><span class="s2">"id"</span>:239394,<span class="s2">"name"</span>:<span class="s2">"user1"</span>,<span class="s2">"type"</span>:<span class="s2">"Tag"</span>,<span class="s2">"properties"</span>:null<span class="o">}</span>
+DEBUG: bam: found Tag with name: user1
+TRACE: found a corpuser: 239394
+DEBUG: middleware<span class="o">(</span>assign<span class="o">)</span>: found user: <span class="o">{</span><span class="s2">"devices"</span>:[],<span class="s2">"ranges"</span>:[],<span class="s2">"username"</span>:<span class="s2">"user1"</span>,<span class="s2">"type"</span>:<span class="s2">"corp"</span>,<span class="s2">"limit"</span>:1,<span class="s2">"userid"</span>:239394,<span class="s2">"macpool"</span>:<span class="s2">"allowedmacs"</span>,<span class="s2">"macpoolid"</span>:239365<span class="o">}</span>
+DEBUG: middleware<span class="o">(</span>assign<span class="o">)</span>: safelimit : add a new mac and tie it to this user
+TRACE: performing rest call: getMACAddress?configurationId<span class="o">=</span>239349&amp;macAddress<span class="o">=</span>00-0C-29-16-30-93
+TRACE: rest call output: getMACAddress?configurationId<span class="o">=</span>239349&amp;macAddress<span class="o">=</span>00-0C-29-16-30-93 : <span class="o">{</span><span class="s2">"id"</span>:239395,<span class="s2">"name"</span>:null,<span class="s2">"type"</span>:<span class="s2">"MACAddress"</span>,<span class="s2">"properties"</span>:<span class="s2">"address=00-0C-29-16-30-93|macPool=allowedmacs|macVendor=VMware, Inc.|"</span><span class="o">}</span>
+TRACE: performing rest call: getLinkedEntities?entityId<span class="o">=</span>239395&amp;type<span class="o">=</span>Tag&amp;start<span class="o">=</span>0&amp;count<span class="o">=</span>10
+TRACE: rest call output: getLinkedEntities?entityId<span class="o">=</span>239395&amp;type<span class="o">=</span>Tag&amp;start<span class="o">=</span>0&amp;count<span class="o">=</span>10 : <span class="o">[]</span>
+DEBUG: middleware<span class="o">(</span>assign<span class="o">)</span>: found mac: <span class="o">{</span><span class="s2">"macid"</span>:239395,<span class="s2">"mac"</span>:<span class="s2">"00-0C-29-16-30-93"</span>,<span class="s2">"macpool"</span>:<span class="s2">"allowedmacs"</span>,<span class="s2">"macpoolid"</span>:239365<span class="o">}</span>
+DEBUG: bam<span class="o">(</span>unlinkMACFromUser<span class="o">)</span>: unlinking mac 00-0C-29-16-30-93 from user undefined<span class="o">(</span>undefined<span class="o">)</span>
+</code></pre>
+</div>
+
+			</section>
+		</section>
+	
+
+
+		</div>
+	</body>
+</html>

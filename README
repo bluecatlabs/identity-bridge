@@ -1,0 +1,25 @@
+BLUECAT MIDDLEWARE VERSION:v1.0.3
+------------------------------------------
+
+
+TODO on BAM:
+Add config BUMA
+Add tag group vip
+Add tag group corp
+Add allowedmacs 
+
+This middleware release is an interim release with the following fixes:
+
+Date:   Mon Jan 22 17:57:13 2018 +0800
+    Added the ability to update middleware
+
+Date:   Mon Jan 22 17:54:36 2018 +0800
+    Removing test.js and adding update-script
+
+Date:   Mon Jan 22 10:46:39 2018 +0800
+    Added code for ping check. Customer also requested to have the entire domain name present for the user, since Palo Alto requires this. Sends the Palo Alto notification when the mac is already present for this user.
+
+Date:   Mon Jan 22 10:37:25 2018 +0800
+    Fix for ping check, deletion of old mac and addition of a new one. The old one still gets an IP as it was not cleared from the allowedmacs pool. We now remove a mac from the pool during unlink for all cases
+
+
