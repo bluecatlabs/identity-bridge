@@ -1,7 +1,7 @@
 var proteus = require('./proteus.js')
 var config = require('./settings.json')
-//var ping = require('net-ping')
-//var pinger = ping.createSession()
+var ping = require('net-ping')
+var pinger = ping.createSession()
 
 //////////////////////////////////////////////////
 // These variables need to be read from a config file
