@@ -1,4 +1,19 @@
-var proteus = require('./proteus.js')
+
+// Copyright 2018 BlueCat Networks (USA) Inc. and its affiliates
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+var bam = require('./bam.js')
 var config = require('./settings.json')
 var ping = require('net-ping')
 var pinger = ping.createSession()
@@ -18,7 +33,7 @@ var corp_group_limit = config.corp_group_limit
 var debug = config.debug
 var trace = config.trace
 var remote_syslog_enable = config.remote_syslog_enable
-var default_domain = config.default_domain ? config.default_domain : 'bukitmakmur'
+var default_domain = config.default_domain
 //////////////////////////////////////////////////
 
 //////////////////////////////// CISCO ISE PARAMETERS & SYSLOG READER  //////////////////////////////
@@ -80,7 +95,7 @@ function processMessage (data) {
         		var domain = parts[0]
         		var name = parts[1]
 		} else {
-        		var domain = default_domain ? default_domain : 'bukitmakmur'
+        		var domain = default_domain
         		var name = parts[0]
 		}
 
@@ -229,7 +244,7 @@ function assign (user, mac) {
 // Initialize BAM to read the config id and the tag group ids.
 // Set the IP limits according to the config
 
-var BAM = new proteus(bam_ip, bam_user, bam_pass)
+var BAM = new bam(bam_ip, bam_user, bam_pass)
 BAMInit(bam_config)
 setInterval (function () {
 	BAM.login()

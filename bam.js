@@ -1,3 +1,18 @@
+
+// Copyright 2018 BlueCat Networks (USA) Inc. and its affiliates
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 var request = require('request')
 var config = require('./settings.json')
 var unique = require('array-unique')
@@ -6,9 +21,9 @@ var Q = require('q')
 var debug = config.debug
 var trace = config.trace
 var fixed_vip_assignment = config.fixed_vip_assignment ? config.fixed_vip_assignment : 0
-var default_domain = config.default_domain ? config.default_domain : 'bukitmakmur'
+var default_domain = config.default_domain
 
-proteus = function (ip, user, pass) {
+bam = function (ip, user, pass) {
 
 	var self = this
 
@@ -52,7 +67,7 @@ proteus = function (ip, user, pass) {
 	return;
 }
 
-proteus.prototype.login = function () {
+bam.prototype.login = function () {
 	var self = this
 	self._login(self._user, self._pass)
 }
@@ -62,7 +77,7 @@ proteus.prototype.login = function () {
 // reject is used to return an error --> value is 0
 // resolve is used to return the json object
 
-proteus.prototype.restCall = function ( fn, args, type, json ) {
+bam.prototype.restCall = function ( fn, args, type, json ) {
 	var self = this
 	var url = self._url + fn
 
@@ -120,7 +135,7 @@ proteus.prototype.restCall = function ( fn, args, type, json ) {
 /////////// INITIALIZATION FUNCTIONS used by BAMInit only //////////////
 // All get functions use return the restCall, in case of an error, the promise is rejected.
 
-proteus.prototype.get = function (name, type, flag, parentid) {
+bam.prototype.get = function (name, type, flag, parentid) {
 
 	var self = this;
 	var prop_str = ""
@@ -183,7 +198,7 @@ proteus.prototype.get = function (name, type, flag, parentid) {
 
 }
 
-proteus.prototype.getConfig = function (configname) {
+bam.prototype.getConfig = function (configname) {
 	var self = this;
         return self.restCall ('getEntityByName', '?parentId=0&type=Configuration&name=' + configname).then(function (obj) {
 		self._configId = obj.id
@@ -191,7 +206,7 @@ proteus.prototype.getConfig = function (configname) {
 	})
 }
 
-proteus.prototype.getDefaultMacPool = function (mac_pool_name) {
+bam.prototype.getDefaultMacPool = function (mac_pool_name) {
 	var self = this;
         return self.restCall ('getEntityByName', '?parentId='+self._configId+'&type=MACPool&name=' + mac_pool_name).then(function (obj) {
 		self._macPoolId = obj.id
@@ -200,19 +215,19 @@ proteus.prototype.getDefaultMacPool = function (mac_pool_name) {
 	})
 }
 
-proteus.prototype.getTagGroup = function (name) {
+bam.prototype.getTagGroup = function (name) {
 	var self = this;
 	return this.restCall ('getEntityByName', '?name='+name+'&parentId=0&type=TagGroup', "GET").then (function (obj) {
 		return (obj.id)
 	})
 }
 
-proteus.prototype.setVipLimit = function (id, access) {
+bam.prototype.setVipLimit = function (id, access) {
 	this._vip = id
 	this._viplimit = access
 }
 
-proteus.prototype.setCorpLimit = function (id, access) {
+bam.prototype.setCorpLimit = function (id, access) {
 	this._corp = id
 	this._corplimit = access
 }
@@ -231,30 +246,30 @@ function logError (err) {
 // Dependency -->
 //	This should be called only when a VIP user exists otherwise the linkage fails!
 /////////////////////////////////
-function add_mac_pool (proteusobj, username, userid) {
+function add_mac_pool (bamobj, username, userid) {
 	var mac_pool_name = username + "-macs"
 
 	if (debug) console.log ("DEBUG: bam(createVIPUser): adding a new mac pool for user: " + username)
-	return proteusobj.get(mac_pool_name, 'MACPool', "CREATE").then(function (macid) {
+	return bamobj.get(mac_pool_name, 'MACPool', "CREATE").then(function (macid) {
 
 		if (trace) console.log ("TRACE: got a mac pool - result = " + macid)
-		proteusobj.restCall('linkEntities', '?entity1Id='+userid+'&entity2Id='+macid, "PUT")
+		bamobj.restCall('linkEntities', '?entity1Id='+userid+'&entity2Id='+macid, "PUT")
 		return macid
 
 	}, logError)
 }
 
-function set_user_type (proteusobj, userobj, type, id) {
+function set_user_type (bamobj, userobj, type, id) {
 	userobj.type = type
-	userobj.limit = (type == 'vip') ? proteusobj._viplimit : proteusobj._corplimit
+	userobj.limit = (type == 'vip') ? bamobj._viplimit : bamobj._corplimit
 	userobj.userid = id
 
 	// For corporate users, and vip users when fixed VIP assignment is turned off, 
 	// we use the same mac pool "allowedmacs"
 	if ((type == 'corp') || 
 	   (type == 'vip') && (!fixed_vip_assignment)) {
-		userobj.macpool = proteusobj._macPoolName;
-		userobj.macpoolid = proteusobj._macPoolId;
+		userobj.macpool = bamobj._macPoolName;
+		userobj.macpoolid = bamobj._macPoolId;
 	}
 }
 
@@ -263,14 +278,14 @@ function set_user_type (proteusobj, userobj, type, id) {
 // Link the DHCP range to the user tag
 // Apply allow mac pools on the DHCP range
 
-function del_add_and_link_dhcp(proteusobj, username, userid, macpoolid, networkid, iplist) {
+function del_add_and_link_dhcp(bamobj, username, userid, macpoolid, networkid, iplist) {
 	var range_name = username + '-range'
 
 	if (debug) console.log ("DEBUG: bam(createVIPUser): deleting the old dhcp range: " + range_name)
-	return proteusobj.get(range_name, 'DHCP4Range', "DELETE", networkid).then (function (d) {
+	return bamobj.get(range_name, 'DHCP4Range', "DELETE", networkid).then (function (d) {
 
 		// Add the DHCP range
-		return proteusobj.restCall('addDHCP4Range', 
+		return bamobj.restCall('addDHCP4Range', 
 		'?networkId='+networkid+'&start='+iplist[0]+'&end='+iplist[iplist.length-1]+'&properties=name='+range_name, "POST").then(function (objid) {
 			if (objid.match("[a-z]")) {
 				logError ("ERROR: bam: failed to add dhcp range: " + iplist + ": " + objid)
@@ -281,17 +296,17 @@ function del_add_and_link_dhcp(proteusobj, username, userid, macpoolid, networki
 
 				// Since we successfuly added a DHCP range, we now link it to the user tag 
 				// and apply the mac pool deployment option as well
-				proteusobj.restCall('linkEntities', '?entity1Id='+userid+'&entity2Id='+objid, "PUT")
+				bamobj.restCall('linkEntities', '?entity1Id='+userid+'&entity2Id='+objid, "PUT")
 				if (debug) console.log ("DEBUG: bam(createVIPUser): deploying mac pool("+macpoolid+") on the dhcp range(" + objid +")")
-				return proteusobj.restCall('addDHCPServiceDeploymentOption', 
+				return bamobj.restCall('addDHCPServiceDeploymentOption', 
 					'?entityId='+objid+'&name=allow-mac-pool&value=&properties=macPool='+macpoolid, "POST")
 			}
 		})
 	})
 }
 
-function get_servers (proteusobj, networkid, macpoolid) {
-	return proteusobj.restCall('getDeploymentRoles', '?entityId='+networkid).then(function(roles) {
+function get_servers (bamobj, networkid, macpoolid) {
+	return bamobj.restCall('getDeploymentRoles', '?entityId='+networkid).then(function(roles) {
 		console.log ("DEBUG: bam(add_dhcp_range): deployment roles for network(" + networkid + "):" + roles) 
 
 		if (!roles.length) {
@@ -315,11 +330,11 @@ function get_servers (proteusobj, networkid, macpoolid) {
 
 						if(debug) console.log ("DEBUG: bam(add_dhcp_range): found deployment role: " + JSON.stringify(role))
 						if(debug) console.log ("DEBUG: bam(add_dhcp_range): deploying mac pool to deployment role: " + JSON.stringify(role))
-						proteusobj.restCall('addDHCPDeploymentRole', '?entityId='+macpoolid+
+						bamobj.restCall('addDHCPDeploymentRole', '?entityId='+macpoolid+
 						'&serverInterfaceId='+role.serverInterfaceId+'&type=MASTER&properties='+propstr, "POST").then(function (){
 						}, logError)
 
-						proteusobj.restCall('getServerForRole', '?roleId='+role.id).then(function (server) {
+						bamobj.restCall('getServerForRole', '?roleId='+role.id).then(function (server) {
 							console.log ("Servers are : " + JSON.stringify(server))
 							sids.push(server.id)
 							dhcp_roles--
@@ -343,23 +358,23 @@ function get_servers (proteusobj, networkid, macpoolid) {
 //	This should be called only when a VIP user exists otherwise the linkage fails!
 // Returns the DHCP object or 0 
 /////////////////////////////
-function del_and_add_new_dhcp_range (proteusobj, username, userid, macpoolid, iplist) {
+function del_and_add_new_dhcp_range (bamobj, username, userid, macpoolid, iplist) {
 
 	if (!iplist.length) return 0
 
 	if (debug) console.log ("DEBUG: bam(createVIPUser): adding a new dhcp range for user(" + username + ") :"  + iplist)
 	// Get the container network id
-	return proteusobj.restCall('getIPRangedByIP', 
-			'?containerId='+proteusobj._configId+'&type=IP4Network&address='+iplist[0], "GET").then(function(network) {
-		return get_servers (proteusobj, network.id, macpoolid).then(function (sid) {
+	return bamobj.restCall('getIPRangedByIP', 
+			'?containerId='+bamobj._configId+'&type=IP4Network&address='+iplist[0], "GET").then(function(network) {
+		return get_servers (bamobj, network.id, macpoolid).then(function (sid) {
 
 			var sids = unique(sid)
 			console.log ("Got sid :" + sids)
 			if (sids) {
-				return del_add_and_link_dhcp (proteusobj, username, userid, macpoolid, network.id, iplist).then(function (added) {
+				return del_add_and_link_dhcp (bamobj, username, userid, macpoolid, network.id, iplist).then(function (added) {
 					if (added) {
 						sids.forEach (function (sid) {
-							proteusobj.restCall('deployServerServices', '?serverId='+sid+'&services=services=DHCP', "POST")
+							bamobj.restCall('deployServerServices', '?serverId='+sid+'&services=services=DHCP', "POST")
 						})
 						return added
 					} else {
@@ -379,10 +394,10 @@ function del_and_add_new_dhcp_range (proteusobj, username, userid, macpoolid, ip
 // If return value is 1, then it means we are safe
 /////////////////////////////
 // Return ERROR string if an overlap exists
-function try_dhcp_add (proteusobj, username, iplist) {
+function try_dhcp_add (bamobj, username, iplist) {
 	if (debug) console.log ('DEBUG: bam(try_dhcp_add): trying to add : ' + iplist)
-	return proteusobj.restCall('getIPRangedByIP', 
-			'?containerId='+proteusobj._configId+'&type=&address='+iplist[0], "GET").then(function(network) {
+	return bamobj.restCall('getIPRangedByIP', 
+			'?containerId='+bamobj._configId+'&type=&address='+iplist[0], "GET").then(function(network) {
 
 		if (network.type == 'DHCP4Range'){
 			if (network.name == username+'-range') {
@@ -411,7 +426,7 @@ function try_dhcp_add (proteusobj, username, iplist) {
 // deletes any old dhcp-ranges for this user as well
 //
 //////////////////////////////////////////////////////////////////////////
-proteus.prototype.createVIPUser = function (args) {
+bam.prototype.createVIPUser = function (args) {
 	var self = this;
 	var username = default_domain + "\\\\" + args[0]
 	var iplist = []
@@ -465,7 +480,7 @@ proteus.prototype.createVIPUser = function (args) {
 ////////// END OF CREATE VIP USER - USED BY THE UI ONLY /////////////////////////
 
 ////////// ACTUAL FUNCTIONS USED BY THE MIDDLEWARE - INLINE PROCESSING /////////////////////////////
-proteus.prototype.getMAC = function (mac) {
+bam.prototype.getMAC = function (mac) {
 	var self = this
 	var mac_obj = {}
 
@@ -507,7 +522,7 @@ proteus.prototype.getMAC = function (mac) {
 	})
 }
 
-proteus.prototype.linkMACToUser = function (macobj, userobj) {
+bam.prototype.linkMACToUser = function (macobj, userobj) {
 
 	var self = this;
 	var newuserid = userobj.userid
@@ -524,7 +539,7 @@ proteus.prototype.linkMACToUser = function (macobj, userobj) {
 	self.restCall ('linkEntities', '?entity1Id='+macobj.macid+'&entity2Id='+userobj.macpoolid, "PUT")
 }
 
-proteus.prototype.unlinkMACFromUser = function (macobj, unlink_pool) {
+bam.prototype.unlinkMACFromUser = function (macobj, unlink_pool) {
 
 	var self = this;
 
@@ -539,7 +554,7 @@ proteus.prototype.unlinkMACFromUser = function (macobj, unlink_pool) {
 
 // This call returns the active IP address for a MAC address.
 // used by pingtest.
-proteus.prototype.getIPForMAC = function (macid) {
+bam.prototype.getIPForMAC = function (macid) {
 	var self = this
 	return self.restCall ('getLinkedEntities', '?entityId='+macid+'&type=IP4Address&start=0&count=10', "GET").then(function(ipobjs) {
 		ip = JSON.stringify(ipobjs).match(/address=([0-9]+.[0-9]+.[0-9]+.[0-9]+)\|state=DHCP_ALLOCATED/)
@@ -553,7 +568,7 @@ proteus.prototype.getIPForMAC = function (macid) {
 	})
 }
 
-proteus.prototype.getUserLinkages = function (obj, type) {
+bam.prototype.getUserLinkages = function (obj, type) {
 	var self = this
 
 	// If fixed vip assignments are turned off, we don't return any MACPool or DHCP4Range linkages
@@ -599,7 +614,7 @@ proteus.prototype.getUserLinkages = function (obj, type) {
 // }
 
 //PS: This automatically creates a corp user, should be used with caution
-proteus.prototype.getUser = function (user) {
+bam.prototype.getUser = function (user) {
 
 	var self = this
 	var obj = {}
@@ -633,4 +648,4 @@ proteus.prototype.getUser = function (user) {
 }
 
 ////////// END OF ACTUAL FUNCTIONS USED BY THE MIDDLEWARE - INLINE PROCESSING /////////////////////////////
-module.exports = proteus
+module.exports = bam

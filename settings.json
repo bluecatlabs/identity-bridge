@@ -14,8 +14,8 @@
 "syslog_server_address" : "0.0.0.0",
 "webui_port" : 5000,
 "default_domain" : "test",
-"ldap_host" : "bumadcho07.bukitmakmur.corp",
-"ldap_basedn" : "dc=bukitmakmur,dc=corp",
-"ldap_user" : "itadmin@bukitmakmur.corp",
-"ldap_password" : "adminbumait"
+"ldap_host" : "ldap.acme.corp",
+"ldap_basedn" : "dc=acme,dc=corp",
+"ldap_user" : "itadmin@acme.corp",
+"ldap_password" : "adminacme"
 }

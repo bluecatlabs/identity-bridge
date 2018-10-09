@@ -1,7 +1,7 @@
 {
   "name": "user-management-middleware",
   "version": "1.0.1",
-  "description": "User management integratio with Cisco ISE",
+  "description": "User management integration with Cisco ISE",
   "main": "webserver.js",
   "dependencies": {
     "activedirectory": "",
@@ -20,5 +20,5 @@
   "scripts": {},
   "keywords": [],
   "author": "Timothy Noel",
-  "license": "BlueCat Commercial"
+  "license": "Apache License, Version 2.0"
 }
